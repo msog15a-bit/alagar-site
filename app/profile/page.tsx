@@ -83,7 +83,7 @@ const CardFooter = ({ onEdit, onDelete }: any) => (
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
  const [user, setUser] = useState<any>(null);
-  const [myListings, setMyListings] = useState([]);
+ const [myListings, setMyListings] = useState<any[]>([]);
   const [officeName, setOfficeName] = useState('');
   const router = useRouter();
 

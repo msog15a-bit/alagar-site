@@ -68,7 +68,7 @@ const CardBody = ({ images, details }) => (
 );
 
 // --- 4. قسم أزرار التحكم (تعديل وحذف) ---
-const ActionButtons = ({ onEdit, onDelete }) => (
+const CardFooter = ({ onEdit, onDelete }: any) => (
   <div className="grid grid-cols-2 gap-4 p-6 pt-2 bg-white" style={{ marginBottom: '10px' }}>
     <button onClick={onEdit} className="bg-[#172554] text-white py-4 rounded-[25px] text-[18px] font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
       <Edit3 size={20} /> تعديل الاعلان

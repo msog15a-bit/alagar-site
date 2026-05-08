@@ -1,4 +1,4 @@
-ï»¿'use client'
+'use client'
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Upload, X, ImageIcon, Loader2 } from 'lucide-react'
@@ -8,12 +8,12 @@ export default function Home() {
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
 
-  // Ø§Ù„ØªØ¹Ø§Ù…Ù„ Ù…Ø¹ Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„ØµÙˆØ± (Ø­Ø¯ Ø£Ù‚ØµÙ‰ 20)
+  // ÇáÊÚÇãá ãÚ ÇÎÊíÇÑ ÇáÕæÑ (ÍÏ ÃŞÕì 20)
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
       if (selectedImages.length + files.length > 20) {
-        alert('Ø£Ø¨ÙˆÙ‡Ø§ Ù…Ø§ ÙŠØ³Ù…Ø­ Ø¨Ø£ÙƒØ«Ø± Ù…Ù† 20 ØµÙˆØ±Ø© Ù„Ù„Ø¥Ø¹Ù„Ø§Ù† Ø§Ù„ÙˆØ§Ø­Ø¯')
+        alert('ÃÈæåÇ ãÇ íÓãÍ ÈÃßËÑ ãä 20 ÕæÑÉ ááÅÚáÇä ÇáæÇÍÏ')
         return
       }
       setSelectedImages([...selectedImages, ...files])
@@ -22,7 +22,7 @@ export default function Home() {
     }
   }
 
-  // Ø­Ø°Ù ØµÙˆØ±Ø© Ù…Ù† Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø© Ù‚Ø¨Ù„ Ø§Ù„Ø±ÙØ¹
+  // ÍĞİ ÕæÑÉ ãä ÇáãÚÇíäÉ ŞÈá ÇáÑİÚ
   const removeImage = (index: number) => {
     const newImages = [...selectedImages]
     const newPreviews = [...previews]
@@ -40,10 +40,10 @@ export default function Home() {
     try {
       const imageUrls = []
       
-      // 1. Ø±ÙØ¹ Ø§Ù„ØµÙˆØ± Ø¥Ù„Ù‰ Ø§Ù„Ù€ Bucket (estate_images)
+      // 1. ÑİÚ ÇáÕæÑ Åáì ÇáÜ Bucket (estate_images)
       for (const file of selectedImages) {
         const fileExt = file.name.split('.').pop()
-        const fileName = ${Math.random()}-.
+        const fileName = `${Math.random()}-${fileExt}`;
         
         const { data, error: uploadError } = await supabase.storage
           .from('estate_images')
@@ -59,7 +59,7 @@ export default function Home() {
         }
       }
 
-      // 2. Ø¥Ø¯Ø®Ø§Ù„ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ÙÙŠ Ø§Ù„Ø¬Ø¯ÙˆÙ„ (Ø¨Ù…Ø§ ÙÙŠÙ‡Ø§ Ù…ØµÙÙˆÙØ© Ø§Ù„ØµÙˆØ±)
+      // 2. ÅÏÎÇá ÇáÈíÇäÇÊ İí ÇáÌÏæá (ÈãÇ İíåÇ ãÕİæİÉ ÇáÕæÑ)
       const { error } = await supabase.from('real_estate').insert([{
         neighborhood_name: formData.get('neighborhood'),
         property_type: formData.get('type'),
@@ -67,14 +67,14 @@ export default function Home() {
         area: formData.get('area'),
         details: formData.get('details'),
         city: formData.get('city'),
-        images: imageUrls // Ø§Ù„Ø¹Ù…ÙˆØ¯ Ø§Ù„Ø¬Ø¯ÙŠØ¯ Ø§Ù„Ø°ÙŠ Ø£Ù†Ø´Ø£Ù†Ø§Ù‡
+        images: imageUrls // ÇáÚãæÏ ÇáÌÏíÏ ÇáĞí ÃäÔÃäÇå
       }])
 
       if (error) throw error
-      alert('ØªÙ… Ù†Ø´Ø± Ø¥Ø¹Ù„Ø§Ù†Ùƒ Ø¨Ù†Ø¬Ø§Ø­ ÙŠØ§ Ø¨Ø·Ù„!')
+      alert('Êã äÔÑ ÅÚáÇäß ÈäÌÇÍ íÇ ÈØá!')
       window.location.reload()
     } catch (err: any) {
-      alert('Ø®Ø·Ø£: ' + err.message)
+      alert('ÎØÃ: ' + err.message)
     } finally {
       setLoading(false)
     }
@@ -83,68 +83,68 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#f3f4f6] p-4 flex justify-center items-start pt-10" dir="rtl">
       <div className="bg-[#ffffff] p-6 md:p-10 rounded-[32px] shadow-xl w-full max-w-2xl border border-[#e5e7eb]">
-        <h1 className="text-2xl font-bold mb-8 text-[#111827] border-r-4 border-[#1e3a8a] pr-3">Ø¥Ø¶Ø§ÙØ© Ø¹Ù‚Ø§Ø± Ø¬Ø¯ÙŠØ¯</h1>
+        <h1 className="text-2xl font-bold mb-8 text-[#111827] border-r-4 border-[#1e3a8a] pr-3">ÅÖÇİÉ ÚŞÇÑ ÌÏíÏ</h1>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© ÙˆØ§Ù„Ø­ÙŠ */}
+          {/* ÇáãÏíäÉ æÇáÍí */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-bold text-[#374151] mr-1">Ø§Ù„Ù…Ø¯ÙŠÙ†Ø©</label>
-              <input name="city" placeholder="Ù…Ø«Ù„Ø§Ù‹: Ø§Ù„Ø±ÙŠØ§Ø¶" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] focus:ring-2 focus:ring-[#1e3a8a] outline-none border-[#d1d5db]" required />
+              <label className="text-sm font-bold text-[#374151] mr-1">ÇáãÏíäÉ</label>
+              <input name="city" placeholder="ãËáÇğ: ÇáÑíÇÖ" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] focus:ring-2 focus:ring-[#1e3a8a] outline-none border-[#d1d5db]" required />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-bold text-[#374151] mr-1">Ø§Ù„Ø­ÙŠ</label>
-              <input name="neighborhood" placeholder="Ù…Ø«Ù„Ø§Ù‹: Ø§Ù„Ù†Ø±Ø¬Ø³" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] focus:ring-2 focus:ring-[#1e3a8a] outline-none border-[#d1d5db]" required />
+              <label className="text-sm font-bold text-[#374151] mr-1">ÇáÍí</label>
+              <input name="neighborhood" placeholder="ãËáÇğ: ÇáäÑÌÓ" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] focus:ring-2 focus:ring-[#1e3a8a] outline-none border-[#d1d5db]" required />
             </div>
           </div>
 
-          {/* Ø§Ù„Ù†ÙˆØ¹ ÙˆØ§Ù„Ø³Ø¹Ø± */}
+          {/* ÇáäæÚ æÇáÓÚÑ */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-bold text-[#374151] mr-1">Ù†ÙˆØ¹ Ø§Ù„Ø¹Ù‚Ø§Ø±</label>
+              <label className="text-sm font-bold text-[#374151] mr-1">äæÚ ÇáÚŞÇÑ</label>
               <select name="type" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db] appearance-none">
-                <option>ÙÙŠÙ„Ø§</option>
-                <option>Ø´Ù‚Ø©</option>
-                <option>Ø¯ÙˆØ±</option>
-                <option>Ø£Ø±Ø¶</option>
-                <option>Ø¹Ù…Ø§Ø±Ø©</option>
+                <option>İíáÇ</option>
+                <option>ÔŞÉ</option>
+                <option>ÏæÑ</option>
+                <option>ÃÑÖ</option>
+                <option>ÚãÇÑÉ</option>
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-bold text-[#374151] mr-1">Ø§Ù„Ø³Ø¹Ø± (Ø±ÙŠØ§Ù„)</label>
+              <label className="text-sm font-bold text-[#374151] mr-1">ÇáÓÚÑ (ÑíÇá)</label>
               <input name="price" type="number" placeholder="0.00" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]" required />
             </div>
           </div>
 
-          {/* Ø§Ù„Ù…Ø³Ø§Ø­Ø© */}
+          {/* ÇáãÓÇÍÉ */}
           <div className="space-y-1">
-            <label className="text-sm font-bold text-[#374151] mr-1">Ø§Ù„Ù…Ø³Ø§Ø­Ø© (Ù…Â²)</label>
-            <input name="area" type="number" placeholder="Ù…Ø«Ù„Ø§Ù‹: 360" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]" required />
+            <label className="text-sm font-bold text-[#374151] mr-1">ÇáãÓÇÍÉ (ã²)</label>
+            <input name="area" type="number" placeholder="ãËáÇğ: 360" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]" required />
           </div>
           
-          {/* Ø§Ù„ØªÙØ§ØµÙŠÙ„ */}
+          {/* ÇáÊİÇÕíá */}
           <div className="space-y-1">
-            <label className="text-sm font-bold text-[#374151] mr-1">ØªÙØ§ØµÙŠÙ„ Ø¥Ø¶Ø§ÙÙŠØ©</label>
-            <textarea name="details" placeholder="Ø£ÙƒØªØ¨ Ù…ÙˆØ§ØµÙØ§Øª Ø§Ù„Ø¹Ù‚Ø§Ø± Ù‡Ù†Ø§..." rows={3} className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]"></textarea>
+            <label className="text-sm font-bold text-[#374151] mr-1">ÊİÇÕíá ÅÖÇİíÉ</label>
+            <textarea name="details" placeholder="ÃßÊÈ ãæÇÕİÇÊ ÇáÚŞÇÑ åäÇ..." rows={3} className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]"></textarea>
           </div>
 
-          {/* Ù…Ù†Ø·Ù‚Ø© Ø±ÙØ¹ Ø§Ù„ØµÙˆØ± */}
+          {/* ãäØŞÉ ÑİÚ ÇáÕæÑ */}
           <div className="space-y-2">
-            <label className="text-sm font-bold text-[#374151] mr-1">ØµÙˆØ± Ø§Ù„Ø¹Ù‚Ø§Ø± (Ø­Ø¯ Ø£Ù‚ØµÙ‰ 20)</label>
+            <label className="text-sm font-bold text-[#374151] mr-1">ÕæÑ ÇáÚŞÇÑ (ÍÏ ÃŞÕì 20)</label>
             <div className="border-2 border-dashed border-[#1e3a8a]/30 rounded-[24px] p-8 bg-[#f8fafc] hover:bg-[#f1f5f9] transition-colors text-center relative">
               <input type="file" multiple accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer" id="img-upload" />
               <div className="flex flex-col items-center gap-2">
                 <div className="bg-[#1e3a8a]/10 p-3 rounded-full text-[#1e3a8a]">
                   <Upload size={28} />
                 </div>
-                <span className="font-bold text-[#1e3a8a]">Ø§Ø³Ø­Ø¨ Ø§Ù„ØµÙˆØ± Ù‡Ù†Ø§ Ø£Ùˆ Ø§Ø¶ØºØ· Ù„Ù„Ø§Ø®ØªÙŠØ§Ø±</span>
-                <span className="text-xs text-[#64748b]">Ø§Ù„ØµÙˆØ± Ø§Ù„Ù…Ø®ØªØ§Ø±Ø©: {selectedImages.length} Ù…Ù† 20</span>
+                <span className="font-bold text-[#1e3a8a]">ÇÓÍÈ ÇáÕæÑ åäÇ Ãæ ÇÖÛØ ááÇÎÊíÇÑ</span>
+                <span className="text-xs text-[#64748b]">ÇáÕæÑ ÇáãÎÊÇÑÉ: {selectedImages.length} ãä 20</span>
               </div>
             </div>
           </div>
 
-          {/* Ø´Ø¨ÙƒØ© Ø§Ù„Ù…Ø¹Ø§ÙŠÙ†Ø© */}
+          {/* ÔÈßÉ ÇáãÚÇíäÉ */}
           {previews.length > 0 && (
             <div className="grid grid-cols-4 md:grid-cols-5 gap-3 mt-4 p-2 bg-gray-50 rounded-2xl">
               {previews.map((src, index) => (
@@ -158,7 +158,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Ø²Ø± Ø§Ù„Ù†Ø´Ø± */}
+          {/* ÒÑ ÇáäÔÑ */}
           <button 
             disabled={loading}
             className="w-full bg-[#1e3a8a] text-white py-4 rounded-[20px] font-bold text-lg hover:bg-[#1e3a8a]/90 transition-all shadow-lg flex items-center justify-center gap-3 disabled:bg-gray-400 disabled:shadow-none"
@@ -166,9 +166,9 @@ export default function Home() {
             {loading ? (
               <>
                 <Loader2 className="animate-spin" size={20} />
-                Ø¬Ø§Ø±ÙŠ Ø±ÙØ¹ Ø§Ù„ØµÙˆØ± ÙˆÙ†Ø´Ø± Ø§Ù„Ø¥Ø¹Ù„Ø§Ù†...
+                ÌÇÑí ÑİÚ ÇáÕæÑ æäÔÑ ÇáÅÚáÇä...
               </>
-            ) : 'Ù†Ø´Ø± Ø§Ù„Ø¥Ø¹Ù„Ø§Ù† Ø§Ù„Ø¢Ù†'}
+            ) : 'äÔÑ ÇáÅÚáÇä ÇáÂä'}
           </button>
         </form>
       </div>

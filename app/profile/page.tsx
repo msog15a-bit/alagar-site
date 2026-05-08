@@ -128,7 +128,7 @@ export default function ProfilePage() {
             <CardHeader city={item.city} neighborhood={item.neighborhood_name} propertyType={item.property_type} listingType={item.listing_type} />
             <PropertyStats area={item.area} price={item.price} />
             <CardBody images={item.images} details={item.details} />
-            <ActionButtons onEdit={() => router.push('/dashboard?edit=' + item.id)} onDelete={() => handleDelete(item.id)} />
+            <CardFooter onEdit={() => router.push('/dashboard?edit=' + item.id)} onDelete={() => handleDelete(item.id)} />
           </div>
         ))}
       </div>

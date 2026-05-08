@@ -45,7 +45,7 @@ const PropertyStats = ({ area, price }: any) => (
 );
 
 // --- 3. قسم المحتوى (التفاصيل والصورة) ---
-const CardBody = ({ images, details }) => (
+const CardBody = ({ images, details }: any) => (
   <div className="flex p-5 gap-6 items-center min-h-[170px] bg-white" style={{ marginTop: '0px' }}>
     {/* جهة النص (التفاصيل) */}
     <div className="flex-1 text-right overflow-hidden" style={{ paddingRight: '5px' }}>

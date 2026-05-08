@@ -5,20 +5,23 @@ import { useRouter } from 'next/navigation'
 import { Trash2, Edit3, Ruler, Banknote, LogOut, Plus, Info } from 'lucide-react'
 
 // --- 1. قسم الهيدر (العناوين العلوية) ---
-const CardHeader = ({ city, neighborhood, propertyType, area, price }: any) => {
-  <div className="bg-[#172554] p-5 text-white flex justify-between items-center px-8">
-    <div className="flex flex-col" style={{ marginTop: '-0px' }}> {/* تحكم في نزول العنوان هنا */}
-     
-      <span className="text-[20px] font-bold leading-tight">{city} - {neighborhood}</span>
+const CardHeader = ({ listingType, city, neighborhood, propertyType, area, price }: any) => {
+  return (
+    <div className="bg-[#172554] p-5 text-white flex justify-between items-center px-8">
+      <div className="flex flex-col">
+        <span className="text-[20px] font-bold leading-tight">
+          {city} - {neighborhood}
+        </span>
+      </div>
+
+      <span className="text-[18px] font-black">{propertyType}</span>
+
+      <span className="bg-white/20 px-5 py-2 rounded-full text-[20px] font-bold">
+        {listingType}
+      </span>
     </div>
-
-    <span className="text-[18px] font-black">{propertyType}</span>   {/* نوع العقار */}
-
-    <span className="bg-white/20 px-5 py-2 rounded-full text-[20px] font-bold">  {/* نوع العرض */}
-      {listingType}
-    </span>
-  </div>
-);
+  );
+};
 
 // --- 2. قسم الإحصائيات (المساحة والسعر) ---
 const PropertyStats = ({ area, price }) => (

@@ -24,7 +24,7 @@ const CardHeader = ({ listingType, city, neighborhood, propertyType, area, price
 };
 
 // --- 2. قسم الإحصائيات (المساحة والسعر) ---
-const PropertyStats = ({ area, price }) => (
+const PropertyStats = ({ area, price }: any) => (
   <div className="grid grid-cols-2 border-b border-gray-100 bg-white" style={{ paddingTop: '5px', paddingBottom: '5px' }}>
     {/* قسم السعر */}
     <div className="p-4 flex items-center justify-center gap-3 border-l border-gray-100">

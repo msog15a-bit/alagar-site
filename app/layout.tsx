@@ -1,15 +1,26 @@
 ﻿import type { Metadata } from "next";
 import "./globals.css";
 
+// تعريف الـ Metadata لإصلاح معلومات المتصفح
 export const metadata: Metadata = {
-  title: "دخول النظام | مكتب العقارات",
-  robots: { index: false, follow: false },
+  title: "موقع عقار",
+  description: "منصة تسويق وإدارة العقارات",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <head>
+        {/* السطر الأهم لحل مشكلة علامات الاستفهام */}
+        <meta charSet="utf-8" />
+      </head>
+      <body>
+        {children}
+      </body>
     </html>
   );
 }

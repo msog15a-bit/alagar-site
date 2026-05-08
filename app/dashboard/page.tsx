@@ -1,144 +1,147 @@
 ﻿'use client'
-import { useEffect, useState, Suspense } from 'react'
+import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { X, PlusCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation' // استيراد الموجه
+import { Upload, X, Loader2 } from 'lucide-react'
 
-function DashboardContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const editId = searchParams.get('edit')
-  
-  const [formData, setFormData] = useState({
-    listing_type: 'للبيع',
-    property_type: 'فيلا',
-    city: '',
-    neighborhood_name: '',
-    price: '',
-    area: '',
-    details: ''
-  })
-  
-  const [images, setImages] = useState<string[]>([])
-  const [uploading, setUploading] = useState(false)
+export default function Home() {
   const [loading, setLoading] = useState(false)
+  const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
+  const router = useRouter() // تعريف الموجه
 
-  useEffect(() => {
-    if (editId) fetchListing(editId)
-  }, [editId])
-
-  async function fetchListing(id: string) {
-    const { data } = await supabase.from('real_estate').select('*').eq('id', id).single()
-    if (data) {
-      setFormData({
-        listing_type: data.listing_type || 'للبيع',
-        property_type: data.property_type || 'فيلا',
-        city: data.city || '',
-        neighborhood_name: data.neighborhood_name || '',
-        price: data.price || '',
-        area: data.area || '',
-        details: data.details || ''
-      })
-      setImages(data.images || [])
-    }
-  }
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return
-    setUploading(true)
-    
-    const files = Array.from(e.target.files)
-    const newUrls: string[] = []
-
-    for (const file of files) {
-      const fileExt = file.name.split('.').pop()
-      const fileName = Math.random().toString(36).substring(2) + '.' + fileExt
-      
-      // التعديل المستهدف: التأكد من استخدام estate_images
-      const { data, error } = await supabase.storage
-        .from('estate_images') 
-        .upload(fileName, file)
-      
-      if (data) {
-        const { data: { publicUrl } } = supabase.storage.from('estate_images').getPublicUrl(fileName)
-        newUrls.push(publicUrl)
-      } else {
-        console.error('Error uploading:', error.message)
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files)
+      if (selectedImages.length + files.length > 20) {
+        alert('لا يمكن رفع أكثر من 20 صورة')
+        return
       }
+      setSelectedImages([...selectedImages, ...files])
+      const newPreviews = files.map(file => URL.createObjectURL(file))
+      setPreviews([...previews, ...newPreviews])
     }
-
-    setImages(prev => [...prev, ...newUrls])
-    setUploading(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const removeImage = (index: number) => {
+    const newImages = [...selectedImages]
+    const newPreviews = [...previews]
+    newImages.splice(index, 1)
+    newPreviews.splice(index, 1)
+    setSelectedImages(newImages)
+    setPreviews(newPreviews)
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
+    const formData = new FormData(e.currentTarget)
     
-    const { data: { user } } = await supabase.auth.getUser()
-    const payload = { 
-      ...formData, 
-      images: images, 
-      user_id: user?.id 
-    }
+    try {
+      const imageUrls = []
+      for (const file of selectedImages) {
+        const fileExt = file.name.split('.').pop()
+        const fileName = `${Math.random()}-${fileExt}`;
+        const { data, error: uploadError } = await supabase.storage
+          .from('estate_images')
+          .upload(fileName, file)
+        
+        if (uploadError) throw uploadError
 
-    const { error } = editId 
-      ? await supabase.from('real_estate').update(payload).eq('id', editId)
-      : await supabase.from('real_estate').insert([payload])
+        if (data) {
+          const { data: urlData } = supabase.storage
+            .from('estate_images')
+            .getPublicUrl(fileName)
+          imageUrls.push(urlData.publicUrl)
+        }
+      }
 
-    if (!error) {
-      alert('تم حفظ البيانات بنجاح!')
-      router.push('/profile')
-    } else {
-      alert('حدث خطأ أثناء الحفظ: ' + error.message)
+      const { error } = await supabase.from('real_estate').insert([{
+        neighborhood_name: formData.get('neighborhood'),
+        property_type: formData.get('type'),
+        price: formData.get('price'),
+        area: formData.get('area'),
+        details: formData.get('details'),
+        city: formData.get('city'),
+        images: imageUrls
+      }])
+
+      if (error) throw error
+      
+      alert('تم إضافة الإعلان بنجاح!')
+      // الانتقال التلقائي لصفحة البروفايل
+      router.push('/profile') 
+      
+    } catch (err: any) {
+      alert('خطأ: ' + err.message)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4" dir="rtl">
-      <div className="max-w-xl mx-auto bg-white p-8 rounded-[40px] shadow-lg border-t-8 border-[#172554]">
-        <h1 className="text-2xl font-bold mb-8 text-[#172554] text-center">إدارة إعلان العقار</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="min-h-screen bg-[#f3f4f6] p-4 flex justify-center items-start pt-10" dir="rtl">
+      <div className="bg-[#ffffff] p-6 md:p-10 rounded-[32px] shadow-xl w-full max-w-2xl border border-[#e5e7eb]">
+        <h1 className="text-2xl font-bold mb-8 text-[#111827] border-r-4 border-[#1e3a8a] pr-3">إضافة عقار جديد</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <select value={formData.listing_type} onChange={e => setFormData({...formData, listing_type: e.target.value})} className="p-4 border rounded-2xl bg-gray-50 outline-none font-bold">
-              <option>للبيع</option><option>للايجار</option>
-            </select>
-            <select value={formData.property_type} onChange={e => setFormData({...formData, property_type: e.target.value})} className="p-4 border rounded-2xl bg-gray-50 outline-none font-bold">
-              <option>فيلا</option><option>شقة</option><option>أرض</option>
-            </select>
-          </div>
-          <input placeholder="المدينة" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full p-4 border rounded-2xl outline-none" required />
-          <input placeholder="اسم الحي" value={formData.neighborhood_name} onChange={e => setFormData({...formData, neighborhood_name: e.target.value})} className="w-full p-4 border rounded-2xl outline-none font-bold" required />
-          <div className="grid grid-cols-2 gap-4">
-            <input placeholder="السعر" type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="p-4 border rounded-2xl outline-none" required />
-            <input placeholder="المساحة" type="number" value={formData.area} onChange={e => setFormData({...formData, area: e.target.value})} className="p-4 border rounded-2xl outline-none" required />
-          </div>
-          <textarea placeholder="تفاصيل إضافية..." value={formData.details} onChange={e => setFormData({...formData, details: e.target.value})} className="w-full p-4 border rounded-2xl h-24 outline-none" />
-          
-          <div className="p-6 border-2 border-dashed rounded-[35px] bg-gray-50 text-center">
-            <p className="text-xs font-bold mb-4 text-gray-400 uppercase tracking-widest">معرض الصور ({images.length})</p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              {images.map((img, i) => (
-                <div key={i} className="relative w-20 h-20">
-                  <img src={img} className="w-full h-full object-cover rounded-xl shadow-sm" />
-                  <button type="button" onClick={() => setImages(images.filter(u => u !== img))} className="absolute -top-2 -left-2 bg-red-600 text-white rounded-full p-1"><X size={12}/></button>
-                </div>
-              ))}
-              <label className="w-20 h-20 border-2 border-dashed border-blue-200 rounded-xl flex items-center justify-center cursor-pointer bg-white">
-                <PlusCircle className="text-blue-400" size={24} />
-                <input type="file" multiple accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading}/>
-              </label>
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-[#374151] mr-1">المدينة</label>
+              <input name="city" placeholder="مثال: الرياض" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] focus:ring-2 focus:ring-[#1e3a8a] outline-none border-[#d1d5db]" required />
             </div>
-            {uploading && <p className="text-blue-500 text-[10px] mt-2 animate-pulse font-bold">يتم الآن رفع الصور...</p>}
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-[#374151] mr-1">الحي</label>
+              <input name="neighborhood" placeholder="مثال: النرجس" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] focus:ring-2 focus:ring-[#1e3a8a] outline-none border-[#d1d5db]" required />
+            </div>
           </div>
-          <button type="submit" disabled={loading || uploading} className="w-full bg-[#172554] text-white py-4 rounded-3xl font-bold text-lg mt-4 shadow-xl">
-            {loading ? 'انتظر قليلاً...' : 'حفظ ونشر الإعلان'}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-[#374151] mr-1">نوع العقار</label>
+              <select name="type" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]">
+                <option>فيلا</option>
+                <option>شقة</option>
+                <option>أرض</option>
+                <option>دور</option>
+                <option>عمارة</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-bold text-[#374151] mr-1">السعر (ريال)</label>
+              <input name="price" type="number" placeholder="0.00" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]" required />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-bold text-[#374151] mr-1">المساحة (م²)</label>
+            <input name="area" type="number" placeholder="مثال: 360" className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]" required />
+          </div>
+          
+          <div className="space-y-1">
+            <label className="text-sm font-bold text-[#374151] mr-1">تفاصيل إضافية</label>
+            <textarea name="details" placeholder="اكتب وصفاً مختصراً للعقار..." rows={3} className="w-full p-3.5 border rounded-2xl bg-[#f9fafb] outline-none border-[#d1d5db]"></textarea>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-[#374151] mr-1">صور العقار (بحد أقصى 20)</label>
+            <div className="border-2 border-dashed border-[#1e3a8a]/30 rounded-[24px] p-8 bg-[#f8fafc] hover:bg-[#f1f5f9] text-center relative">
+              <input type="file" multiple accept="image/*" onChange={handleImageChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+              <div className="flex flex-col items-center gap-2">
+                <Upload size={28} className="text-[#1e3a8a]" />
+                <span className="font-bold text-[#1e3a8a]">اضغط لرفع الصور</span>
+              </div>
+            </div>
+          </div>
+
+          <button 
+            disabled={loading}
+            className="w-full bg-[#1e3a8a] text-white py-4 rounded-[20px] font-bold text-lg hover:bg-[#1e3a8a]/90 transition-all shadow-lg flex items-center justify-center gap-3 disabled:bg-gray-400"
+          >
+            {loading ? <><Loader2 className="animate-spin" size={20} /> جاري الحفظ...</> : 'نشر الإعلان الآن'}
           </button>
         </form>
       </div>
     </div>
   )
 }
-
-export default function Page() { return <Suspense fallback={<div>جاري التحميل...</div>}><DashboardContent/></Suspense> }

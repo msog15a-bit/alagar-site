@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Trash2, Edit3, Ruler, Banknote, LogOut, Plus, Info } from 'lucide-react'
 
 // --- 1. قسم الهيدر (العناوين العلوية) ---
-const CardHeader = ({ city, neighborhood, propertyType, listingType }) => (
+const CardHeader = ({ city, neighborhood, propertyType, area, price }: any) => {
   <div className="bg-[#172554] p-5 text-white flex justify-between items-center px-8">
     <div className="flex flex-col" style={{ marginTop: '-0px' }}> {/* تحكم في نزول العنوان هنا */}
      

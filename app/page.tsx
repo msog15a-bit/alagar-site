@@ -14,7 +14,7 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     
-    // تحويل الرقم المدخل (مثلاً 0500000000) إلى الصيغة الدولية (+966500000000)
+    // تحويل الرقم (0500000000) إلى الصيغة الدولية خلف الكواليس
     let formattedPhone = phone.trim()
     if (formattedPhone.startsWith('0')) {
       formattedPhone = '+966' + formattedPhone.substring(1)
@@ -46,13 +46,13 @@ export default function LoginPage() {
           <p className="text-gray-500 mt-2">تسجيل الدخول</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-6" noValidate> {/* أضفنا noValidate لتعطيل تدقيق المتصفح الافتراضي */}
           <div className="space-y-1">
             <label className="text-sm font-bold text-gray-700 mr-1 flex items-center gap-2">
               <Phone size={16} className="text-[#1e3a8a]" /> رقم الجوال
             </label>
             <input 
-              type="text" // تغيير النوع ليتوقف عن طلب الإيميل
+              type="text" // تم التغيير من email إلى text لمنع طلب الـ @
               required
               placeholder="0500000000" 
               className="w-full p-4 border rounded-2xl bg-gray-50 outline-none text-right focus:ring-2 focus:ring-[#1e3a8a] border-gray-200" 
@@ -75,7 +75,7 @@ export default function LoginPage() {
 
           <button 
             disabled={loading} 
-            className="w-full bg-[#1e3a8a] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#1e3a8a]/90 transition-all flex items-center justify-center gap-2 shadow-lg disabled:bg-gray-400"
+            className="w-full bg-[#1e3a8a] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#1e3a8a]/90 transition-all flex items-center justify-center gap-2 shadow-lg"
           >
             {loading ? <Loader2 className="animate-spin" /> : 'دخول'}
           </button>

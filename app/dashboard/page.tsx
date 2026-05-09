@@ -16,18 +16,18 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     
     if (error) {
-      alert('خطأ في بيانات الدخول')
+      alert('خطأ في الدخول: تأكد من البريد وكلمة المرور')
       setLoading(false)
     } else {
-      // سينقلك لصفحة الإضافة بعد تسجيل الدخول
-      router.push('/dashboard')
+      // بعد النجاح، سينقلك لصفحة الإضافة التي سننقلها لمجلد جديد
+      router.push('/dashboard') 
     }
   }
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center p-4" dir="rtl">
       <div className="bg-white p-10 rounded-[35px] shadow-2xl w-full max-w-md border border-gray-100">
-        <h1 className="text-3xl font-bold text-center text-[#1e3a8a] mb-8">تسجيل الدخول</h1>
+        <h1 className="text-3xl font-bold text-center text-[#1e3a8a] mb-8">alagar.click</h1>
         <form onSubmit={handleLogin} className="space-y-6">
           <input 
             type="email" 
@@ -45,7 +45,7 @@ export default function LoginPage() {
           />
           <button 
             disabled={loading} 
-            className="w-full bg-[#1e3a8a] text-white py-4 rounded-2xl font-bold text-lg hover:bg-[#1e3a8a]/90 transition-all flex items-center justify-center gap-2"
+            className="w-full bg-[#1e3a8a] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg"
           >
             {loading ? <Loader2 className="animate-spin" /> : 'دخول'}
           </button>
